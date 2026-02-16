@@ -58,7 +58,7 @@ Open **http://localhost:5173** in your browser.
 
 ## Architecture
 
-This project is a **Single Page Application (SPA)** built with Vite and React. It uses a "Ports and Adapters" pattern to handle file storage, allowing it to switch seamlessly between a real file system and browser storage.
+This project is a **Single Page Application (SPA)** built with Vite and React. It uses a "Ports and Adapters" pattern to handle file storage, allowing it to switch seamlessly between a real file system and browser storage. The codebase follows a modular organization with components grouped by feature domain, centralized constants, shared types, and barrel exports for clean imports.
 
 ### Tech Stack
 - **Frontend**: React 19, TypeScript, Vite
@@ -70,20 +70,31 @@ This project is a **Single Page Application (SPA)** built with Vite and React. I
 ```
 src/
 ├── api/
-│   ├── browserAdapter.ts      # File System Access API implementation
-│   ├── localStorageAdapter.ts # IndexedDB implementation
-│   └── client.ts             # Interface switcher
+│   ├── browserAdapter.ts       # File System Access API implementation
+│   ├── localStorageAdapter.ts  # IndexedDB virtual filesystem
+│   ├── client.ts               # Adapter switcher
+│   ├── interfaces.ts           # FileSystemAdapter interface
+│   └── index.ts                # Barrel export
 ├── components/
-│   ├── ui/                   # Specialized UI (PrimaryButton, DangerButton, Modal, etc.)
-│   ├── settings/             # Settings sections (FileSystem, DataManagement, DangerZone)
-│   ├── Sidebar.tsx           # File explorer
-│   ├── MainPanel.tsx         # Editor & Preview
-│   └── TodoPanel.tsx         # Extracted task list
+│   ├── layout/                 # Sidebar, MainPanel, EditorToolbar, MobileHeader
+│   ├── editor/                 # MarkdownEditor (CodeMirror), MarkdownViewer
+│   ├── tree/                   # FileTree, FileTreeNode
+│   ├── todos/                  # TodoPanel, TodoList, TodoCheckbox
+│   ├── modals/                 # CreateItemModal, ConfirmationModal, WelcomeModal, SettingsModal, RestoreSessionModal, FolderPicker
+│   ├── settings/               # FileSystemSection, DataManagementSection, DangerZone
+│   └── ui/                     # Button variants, ThemeToggle, FeatureWarning
 ├── config/
-│   └── supportedVersions.ts  # Version compatibility config
+│   └── supportedVersions.ts    # Version compatibility config
+├── constants.ts                # Centralized magic strings & config values
 ├── contexts/
-│   └── SettingsContext.tsx   # Theme & Storage mode state
-└── hooks/                    # Logic for file tree, content, shortcuts, and data import/export
+│   └── SettingsContext.tsx      # Theme & storage mode state
+├── hooks/                      # useFileTree, useFileContent, useTodos, useDataManagement, useKeyboardShortcuts
+├── types/
+│   └── index.ts                # Shared types (TreeNode, TodoItem, ViewMode, etc.)
+└── utils/
+    ├── treeUtils.ts            # Shared recursive tree traversal helpers
+    ├── todoParser.ts           # Markdown todo extraction
+    └── versionValidator.ts     # Semver version validation
 ```
 
 ## Browser Support
