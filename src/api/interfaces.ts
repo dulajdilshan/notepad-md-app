@@ -9,4 +9,5 @@ export interface FileSystemAdapter {
     createFolder(path: string): Promise<void>;
     deleteFile(path: string): Promise<void>;
     deleteFolder(path: string): Promise<void>;
+    exportData(): Promise<{ [key: string]: string | object }>;
 }

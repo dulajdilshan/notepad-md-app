@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { fetchDirectories } from '../api/client';
+import { fetchDirectories } from '../../api/client';
 
 interface Props {
     onSelect: (path: string) => void;

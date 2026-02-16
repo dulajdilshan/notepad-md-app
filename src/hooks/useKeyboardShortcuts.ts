@@ -1,13 +1,13 @@
-
 import { useEffect } from 'react';
+import type { CreateItemModal } from '../types';
 
-interface Params {
-    modal: any;
+interface KeyboardShortcutParams {
+    modal: CreateItemModal | null;
     isSettingsOpen: boolean;
     isMobileSidebarOpen: boolean;
     isMobileTodoOpen: boolean;
     selectedPath: string | null;
-    setModal: (val: any) => void;
+    setModal: (val: CreateItemModal | null) => void;
     setIsSettingsOpen: (val: boolean) => void;
     setIsMobileSidebarOpen: (val: boolean) => void;
     setIsMobileTodoOpen: (val: boolean) => void;
@@ -25,7 +25,7 @@ export function useKeyboardShortcuts({
     setIsMobileSidebarOpen,
     setIsMobileTodoOpen,
     handleCloseFile,
-}: Params) {
+}: KeyboardShortcutParams) {
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
             // Global Escape handler

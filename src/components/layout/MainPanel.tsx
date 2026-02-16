@@ -1,7 +1,7 @@
 import MobileHeader from './MobileHeader';
 import EditorToolbar from './EditorToolbar';
-import MarkdownEditor from './MarkdownEditor';
-import MarkdownViewer from './MarkdownViewer';
+import MarkdownEditor from '../editor/MarkdownEditor';
+import MarkdownViewer from '../editor/MarkdownViewer';
 
 interface Props {
   filePath: string | null;

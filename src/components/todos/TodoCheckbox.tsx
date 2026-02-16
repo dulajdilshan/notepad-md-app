@@ -1,11 +1,11 @@
-import type { TodoItem as TodoItemType } from '../types';
+import type { TodoItem } from '../../types';
 
 interface Props {
-  todo: TodoItemType;
+  todo: TodoItem;
   onToggle: (lineIndex: number) => void;
 }
 
-export default function TodoItem({ todo, onToggle }: Props) {
+export default function TodoCheckbox({ todo, onToggle }: Props) {
   return (
     <label className={`flex items-start gap-3 px-3 py-2 hover:bg-white dark:hover:bg-slate-800 hover:shadow-sm rounded-lg cursor-pointer transition-all duration-200 border border-transparent hover:border-slate-100 dark:hover:border-slate-700 group ${todo.checked ? 'opacity-60' : ''}`}>
       <div className="relative flex items-center mt-0.5">

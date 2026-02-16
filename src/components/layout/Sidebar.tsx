@@ -1,6 +1,6 @@
-import type { TreeNode } from '../types';
-import FileTree from './FileTree';
-import appLogo from '../assets/notepad.md-logo.png';
+import type { TreeNode } from '../../types';
+import FileTree from '../tree/FileTree';
+import appLogo from '../../assets/notepad.md-logo.png';
 
 interface Props {
   tree: TreeNode[];

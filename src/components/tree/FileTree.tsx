@@ -1,8 +1,8 @@
-import type { TreeNode as TreeNodeType } from '../types';
-import TreeNode from './TreeNode';
+import type { TreeNode } from '../../types';
+import FileTreeNode from './FileTreeNode';
 
 interface Props {
-  tree: TreeNodeType[];
+  tree: TreeNode[];
   selectedPath: string | null;
   onSelectFile: (path: string) => void;
   onDelete: (path: string, type: 'file' | 'folder') => void;
@@ -18,7 +18,7 @@ export default function FileTree({ tree, selectedPath, onSelectFile, onDelete, o
   return (
     <div className="py-1">
       {tree.map((node) => (
-        <TreeNode
+        <FileTreeNode
           key={node.path}
           node={node}
           selectedPath={selectedPath}

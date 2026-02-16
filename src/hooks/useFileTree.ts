@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import type { TreeNode } from '../types';
 import { fetchTree, checkBrowserSession, restoreBrowserSession } from '../api/client';
 import { useSettings } from '../contexts/SettingsContext';
+import { ADAPTER_TYPE } from '../constants';
 
 export function useFileTree() {
   const [tree, setTree] = useState<TreeNode[]>([]);
@@ -30,7 +31,7 @@ export function useFileTree() {
         return;
       }
 
-      if (rootPath === 'BROWSER_NATIVE') {
+      if (rootPath === ADAPTER_TYPE.BROWSER) {
         const sessionStatus = await checkBrowserSession();
         if (sessionStatus === 'needs-permission') {
           setPermissionNeeded(true);
