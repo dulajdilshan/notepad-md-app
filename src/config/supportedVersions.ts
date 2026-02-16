@@ -7,7 +7,5 @@
  * - "^^1.5.0": Major version match. Allows any minor or patch update within the same major version (e.g., 1.5.1, 1.6.0, 1.9.9).
  */
 export const SUPPORTED_VERSIONS = [
-    "^0.2.0",
-    "^^1.5.0",
-    "^^2.0"
+    "^0.1.0"
 ];
