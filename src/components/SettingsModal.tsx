@@ -128,6 +128,37 @@ export default function SettingsModal({ isOpen, onClose }: Props) {
                                 Open Local Folder
                             </button>
                         </div>
+
+                        {rootPath === 'BROWSER_STORAGE' && (
+                            <>
+                                <hr className="border-slate-100 dark:border-slate-700" />
+                                <div className="space-y-4">
+                                    <div className="bg-red-50 dark:bg-red-900/20 p-4 rounded-lg border border-red-100 dark:border-red-900/30">
+                                        <h4 className="text-sm font-medium text-red-800 dark:text-red-300 mb-1">Danger Zone</h4>
+                                        <p className="text-xs text-red-600 dark:text-red-400 mb-3">
+                                            Clear all files and folders stored in the browser. This action cannot be undone.
+                                        </p>
+                                        <button
+                                            onClick={async () => {
+                                                if (confirm('Are you sure you want to delete all files stored in this browser? This cannot be undone.')) {
+                                                    try {
+                                                        const { clearStorage } = await import('../api/localStorageAdapter');
+                                                        await clearStorage();
+                                                        window.location.reload();
+                                                    } catch (e) {
+                                                        console.error('Failed to clear storage:', e);
+                                                        alert('Failed to clear storage.');
+                                                    }
+                                                }
+                                            }}
+                                            className="w-full py-2 px-3 bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-400 rounded hover:bg-red-200 dark:hover:bg-red-900/60 transition-colors text-sm font-medium"
+                                        >
+                                            Clear In-Browser Storage
+                                        </button>
+                                    </div>
+                                </div>
+                            </>
+                        )}
                     </div>
 
                     <div className="px-6 py-4 bg-slate-50 dark:bg-slate-900/50 flex justify-end gap-2 border-t border-slate-100 dark:border-slate-700">
