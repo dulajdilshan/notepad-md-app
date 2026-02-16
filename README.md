@@ -14,6 +14,8 @@ A privacy-focused, client-side markdown note manager built with React. Edit and 
     2.  **In-Browser Storage (IndexedDB)**: Detailed sandbox environment for any browser (Firefox/Safari/Mobile), persisting data within the browser.
 - **📝 Seamless Editing**: Split-view interface with a CodeMirror editor and live Markdown preview.
 - **✅ Todo Sync**: Automatically extracts `- [ ]` tasks from your markdown into a dedicated interactive checklist.
+- **📦 Data Portability**: Export your entire workspace to a JSON backup and import it back with version validation.
+- **⚡ Smart Actions**: Context-aware UI with specialized Primary, Secondary, and Danger buttons for clear user guidance.
 - **🎨 Modern UI**: Clean aesthetic with **Dark/Light mode** support.
 - **📱 Responsive**: Fully functional on mobile devices with touch-friendly sidebar and controls.
 
@@ -55,7 +57,7 @@ This project is a **Single Page Application (SPA)** built with Vite and React. I
 - **Frontend**: React 19, TypeScript, Vite
 - **Styling**: Tailwind CSS v4
 - **Editor**: `@uiw/react-codemirror`
-- **Storage**: `Window.showDirectoryPicker` (Native) / `idb-keyval` (IndexedDB)
+- **Storage**: `Window.showDirectoryPicker` (Native) / `idb-keyval` (IndexedDB) & JSON Backup
 
 ### Project Structure
 ```
@@ -65,13 +67,16 @@ src/
 │   ├── localStorageAdapter.ts # IndexedDB implementation
 │   └── client.ts             # Interface switcher
 ├── components/
-│   ├── ui/                   # Reusable UI (Button, Modal, etc.)
+│   ├── ui/                   # Specialized UI (PrimaryButton, DangerButton, Modal, etc.)
+│   ├── settings/             # Settings sections (FileSystem, DataManagement, DangerZone)
 │   ├── Sidebar.tsx           # File explorer
 │   ├── MainPanel.tsx         # Editor & Preview
 │   └── TodoPanel.tsx         # Extracted task list
+├── config/
+│   └── supportedVersions.ts  # Version compatibility config
 ├── contexts/
 │   └── SettingsContext.tsx   # Theme & Storage mode state
-└── hooks/                    # Logic for file tree, content, and shortcuts
+└── hooks/                    # Logic for file tree, content, shortcuts, and data import/export
 ```
 
 ## Browser Support
