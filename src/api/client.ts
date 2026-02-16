@@ -21,7 +21,7 @@ export const setAdapter = (type: 'server' | 'browser' | 'local-storage') => {
 };
 
 export const getAdapterType = () => {
-  return localStorage.getItem('adapterType') as 'server' | 'browser' | 'local-storage' || 'server';
+  return localStorage.getItem('adapterType') as 'server' | 'browser' | 'local-storage' || 'local-storage';
 };
 
 // Initialize
