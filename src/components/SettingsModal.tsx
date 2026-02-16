@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useSettings } from '../contexts/SettingsContext';
 import FolderPicker from './FolderPicker';
+import Button from './ui/Button';
+import ThemeToggle from './ui/ThemeToggle';
 
 interface Props {
     isOpen: boolean;
@@ -8,7 +10,7 @@ interface Props {
 }
 
 export default function SettingsModal({ isOpen, onClose }: Props) {
-    const { theme, toggleTheme, rootPath, setRootPath, triggerRefresh } = useSettings();
+    const { rootPath, setRootPath, triggerRefresh } = useSettings();
     const [localPath, setLocalPath] = useState(rootPath);
     const [showPicker, setShowPicker] = useState(false);
 
@@ -52,29 +54,7 @@ export default function SettingsModal({ isOpen, onClose }: Props) {
 
                     <div className="p-6 space-y-6 bg-white dark:bg-slate-800">
                         {/* Theme Toggle */}
-                        <div className="flex items-center justify-between">
-                            <div>
-                                <h4 className="text-sm font-medium text-slate-900 dark:text-white">Appearance</h4>
-                                <p className="text-xs text-slate-500 dark:text-slate-400">Choose your preferred theme</p>
-                            </div>
-                            <button
-                                onClick={toggleTheme}
-                                className={`relative inline-flex h-7 w-14 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${theme === 'dark' ? 'bg-slate-600' : 'bg-slate-200'
-                                    }`}
-                            >
-                                <span className="sr-only">Toggle theme</span>
-                                <span className="absolute left-1.5 text-yellow-500 z-0">
-                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
-                                </span>
-                                <span className="absolute right-1.5 text-slate-400 z-0">
-                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
-                                </span>
-                                <span
-                                    className={`${theme === 'dark' ? 'translate-x-8' : 'translate-x-1'
-                                        } inline-block h-5 w-5 transform rounded-full bg-white transition-transform shadow-sm z-10`}
-                                />
-                            </button>
-                        </div>
+                        <ThemeToggle />
 
                         <hr className="border-slate-100 dark:border-slate-700" />
 
@@ -85,8 +65,7 @@ export default function SettingsModal({ isOpen, onClose }: Props) {
                                 Switch between Browser Native (Chrome/Edge) or In-Browser Storage (Safari/Firefox).
                             </p>
 
-                            <button
-                                type="button"
+                            <Button
                                 disabled={!supportsFileSystem}
                                 onClick={async () => {
                                     if (!supportsFileSystem) return;
@@ -103,14 +82,12 @@ export default function SettingsModal({ isOpen, onClose }: Props) {
                                         alert('Failed to open folder. Please try again.');
                                     }
                                 }}
-                                className={`w-full py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors shadow-sm flex items-center justify-center gap-2 ${supportsFileSystem
-                                    ? 'bg-indigo-600 text-white hover:bg-indigo-700 focus:ring-indigo-500'
-                                    : 'bg-slate-100 text-slate-400 cursor-not-allowed dark:bg-slate-700 dark:text-slate-500'
-                                    }`}
+                                variant={supportsFileSystem ? 'primary' : 'outline'}
+                                className={!supportsFileSystem ? 'bg-slate-100 text-slate-400 cursor-not-allowed dark:bg-slate-700 dark:text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700 w-full' : 'w-full'}
+                                icon={<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 19a2 2 0 01-2-2V7a2 2 0 012-2h4l2 2h4a2 2 0 012 2v1M5 19h14a2 2 0 002-2v-5a2 2 0 00-2-2H9a2 2 0 00-2 2v5a2 2 0 01-2 2z" /></svg>}
                             >
-                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 19a2 2 0 01-2-2V7a2 2 0 012-2h4l2 2h4a2 2 0 012 2v1M5 19h14a2 2 0 002-2v-5a2 2 0 00-2-2H9a2 2 0 00-2 2v5a2 2 0 01-2 2z" /></svg>
                                 Open Local Folder {supportsFileSystem ? '' : '(Not Supported)'}
-                            </button>
+                            </Button>
 
                             {rootPath !== 'BROWSER_STORAGE' && (
                                 <>
@@ -120,8 +97,8 @@ export default function SettingsModal({ isOpen, onClose }: Props) {
                                         </div>
                                     </div>
 
-                                    <button
-                                        type="button"
+                                    <Button
+                                        variant="secondary"
                                         onClick={async () => {
                                             try {
                                                 const { setAdapter } = await import('../api/client');
@@ -133,11 +110,11 @@ export default function SettingsModal({ isOpen, onClose }: Props) {
                                                 alert('Failed to switch to in-browser storage.');
                                             }
                                         }}
-                                        className="w-full bg-emerald-600 text-white py-2 px-4 rounded-md hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition-colors shadow-sm flex items-center justify-center gap-2"
+                                        className="w-full"
+                                        icon={<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>}
                                     >
-                                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>
                                         Use In-Browser Storage
-                                    </button>
+                                    </Button>
                                 </>
                             )}
                         </div>
@@ -151,7 +128,9 @@ export default function SettingsModal({ isOpen, onClose }: Props) {
                                         <p className="text-xs text-red-600 dark:text-red-400 mb-3">
                                             Clear all files and folders stored in the browser. This action cannot be undone.
                                         </p>
-                                        <button
+                                        <Button
+                                            variant="danger"
+                                            size="sm"
                                             onClick={async () => {
                                                 if (confirm('Are you sure you want to delete all files stored in this browser? This cannot be undone.')) {
                                                     try {
@@ -164,10 +143,10 @@ export default function SettingsModal({ isOpen, onClose }: Props) {
                                                     }
                                                 }
                                             }}
-                                            className="w-full py-2 px-3 bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-400 rounded hover:bg-red-200 dark:hover:bg-red-900/60 transition-colors text-sm font-medium"
+                                            className="w-full"
                                         >
                                             Clear In-Browser Storage
-                                        </button>
+                                        </Button>
                                     </div>
                                 </div>
                             </>
@@ -175,18 +154,18 @@ export default function SettingsModal({ isOpen, onClose }: Props) {
                     </div>
 
                     <div className="px-6 py-4 bg-slate-50 dark:bg-slate-900/50 flex justify-end gap-2 border-t border-slate-100 dark:border-slate-700">
-                        <button
+                        <Button
+                            variant="outline"
                             onClick={onClose}
-                            className="px-4 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-md transition-colors"
                         >
                             Cancel
-                        </button>
-                        <button
+                        </Button>
+                        <Button
+                            variant="primary"
                             onClick={handleSavePath}
-                            className="px-4 py-2 text-sm bg-blue-600 text-white hover:bg-blue-700 rounded-md shadow-sm transition-colors"
                         >
                             Save Changes
-                        </button>
+                        </Button>
                     </div>
                 </div>
             </div>

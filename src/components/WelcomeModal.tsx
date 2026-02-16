@@ -1,5 +1,7 @@
 import { useSettings } from '../contexts/SettingsContext';
 import appLogo from '../assets/notepad.md-logo.png';
+import Button from './ui/Button';
+import FeatureWarning from './ui/FeatureWarning';
 
 export default function WelcomeModal() {
     const { rootPath, setRootPath } = useSettings();
@@ -35,13 +37,12 @@ export default function WelcomeModal() {
 
                     <div className="flex flex-col gap-3">
                         {!supportsFileSystem && (
-                            <div className="bg-amber-50 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-700 p-3 rounded-md text-sm text-amber-800 dark:text-amber-200 mb-2">
+                            <FeatureWarning>
                                 <strong>Browser Notice:</strong> Your browser (Safari/Firefox) does not support direct file access. Please use the <b>In-Browser Storage</b> mode below.
-                            </div>
+                            </FeatureWarning>
                         )}
 
-                        <button
-                            type="button"
+                        <Button
                             onClick={async () => {
                                 if (!supportsFileSystem) {
                                     alert('This feature requires a Chromium-based browser (Chrome, Edge, Opera). Please use the In-Browser Storage mode.');
@@ -58,23 +59,22 @@ export default function WelcomeModal() {
                                     // alert('Failed to open folder. Please try again.');
                                 }
                             }}
-                            className={`w-full py-3 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors shadow-sm flex items-center justify-center gap-2 ${supportsFileSystem
-                                ? 'bg-indigo-600 text-white hover:bg-indigo-700 focus:ring-indigo-500'
-                                : 'bg-slate-100 text-slate-400 cursor-not-allowed dark:bg-slate-700 dark:text-slate-500'
-                                }`}
+                            disabled={!supportsFileSystem}
+                            variant={supportsFileSystem ? 'primary' : 'outline'}
+                            className={!supportsFileSystem ? 'bg-slate-100 text-slate-400 cursor-not-allowed dark:bg-slate-700 dark:text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700' : 'w-full'}
+                            icon={<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 19a2 2 0 01-2-2V7a2 2 0 012-2h4l2 2h4a2 2 0 012 2v1M5 19h14a2 2 0 002-2v-5a2 2 0 00-2-2H9a2 2 0 00-2 2v5a2 2 0 01-2 2z" /></svg>}
                         >
-                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 19a2 2 0 01-2-2V7a2 2 0 012-2h4l2 2h4a2 2 0 012 2v1M5 19h14a2 2 0 002-2v-5a2 2 0 00-2-2H9a2 2 0 00-2 2v5a2 2 0 01-2 2z" /></svg>
                             Open Local Folder {supportsFileSystem ? '(Browser Native)' : '(Not Supported)'}
-                        </button>
+                        </Button>
 
-                        <button
-                            type="button"
+                        <Button
+                            variant="secondary"
                             onClick={handleLocalStorage}
-                            className="w-full bg-emerald-600 text-white py-3 px-4 rounded-md hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition-colors shadow-sm flex items-center justify-center gap-2"
+                            icon={<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>}
+                            className="w-full"
                         >
-                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>
                             Use In-Browser Storage (Demo)
-                        </button>
+                        </Button>
 
                     </div>
                 </div>
