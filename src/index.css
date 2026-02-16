@@ -1,0 +1,11 @@
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
+
+/* Force class-based dark mode */
+@variant dark (&:where(.dark, .dark *));
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  @apply bg-slate-50 text-slate-700 dark:bg-slate-900 dark:text-slate-300;
+}
