@@ -32,7 +32,9 @@ export default function SettingsModal({ isOpen, onClose }: Props) {
         handleImportClick,
         handleImportConfirm,
         handleClearStorage,
-        handleSwitchToStorage
+        handleSwitchToStorage,
+        importError,
+        setImportError
     } = useDataManagement();
 
     // Feature detection
@@ -169,6 +171,16 @@ export default function SettingsModal({ isOpen, onClose }: Props) {
                 variant="danger"
                 onAlternative={existingNoteCount > 0 ? handleSwitchToStorage : undefined}
                 alternativeText="Load Existing Data"
+            />
+            <ConfirmationModal
+                isOpen={!!importError}
+                onClose={() => setImportError(null)}
+                onConfirm={() => setImportError(null)}
+                title="Import Failed"
+                message={importError || ''}
+                confirmText="Close"
+                variant="danger"
+                showCancel={false}
             />
         </>
     );

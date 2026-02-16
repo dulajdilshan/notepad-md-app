@@ -11,6 +11,7 @@ export function useDataManagement() {
     const [confirmImport, setConfirmImport] = useState(false);
     const [confirmClear, setConfirmClear] = useState(false);
     const [existingNoteCount, setExistingNoteCount] = useState(0);
+    const [importError, setImportError] = useState<string | null>(null);
 
     const handleExport = async () => {
         setIsExporting(true);
@@ -52,6 +53,9 @@ export function useDataManagement() {
             const file = (e.target as HTMLInputElement).files?.[0];
             if (!file) return;
 
+            // Reset error
+            setImportError(null);
+
             try {
                 const text = await file.text();
                 const json = JSON.parse(text);
@@ -62,6 +66,19 @@ export function useDataManagement() {
                 if (json['notepad.md-version']) {
                     contentToImport = json.content;
                     versionToImport = json['notepad.md-version'];
+                } else {
+                    // Reject if no version
+                    setImportError('File is missing version information ("notepad.md-version").');
+                    return;
+                }
+
+                // Validate version
+                const { SUPPORTED_VERSIONS } = await import('../config/supportedVersions');
+                const { isVersionSupported } = await import('../utils/versionValidator');
+
+                if (!isVersionSupported(versionToImport, SUPPORTED_VERSIONS)) {
+                    setImportError(`Version "${versionToImport}" is not supported. \n\nSupported versions are ${SUPPORTED_VERSIONS.join(', ')}`);
+                    return;
                 }
 
                 const { localStorageAdapter } = await import('../api/localStorageAdapter');
@@ -73,7 +90,7 @@ export function useDataManagement() {
                 setConfirmImport(true);
             } catch (err) {
                 console.error('Failed to parse JSON', err);
-                alert('Invalid JSON file');
+                setImportError('Invalid JSON file');
             }
         };
         input.click();
@@ -99,7 +116,7 @@ export function useDataManagement() {
             window.location.reload();
         } catch (e) {
             console.error('Import failed:', e);
-            alert('Failed to import data.');
+            setImportError('Failed to import data: ' + (e instanceof Error ? e.message : String(e)));
             setIsImporting(false);
             setConfirmImport(false);
         }
@@ -141,6 +158,8 @@ export function useDataManagement() {
         handleImportConfirm,
         handleClearStorage,
         handleSwitchToStorage,
-        rootPath
+        rootPath,
+        importError,
+        setImportError
     };
 }

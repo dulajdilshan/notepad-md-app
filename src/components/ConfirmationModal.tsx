@@ -12,6 +12,7 @@ interface Props {
     variant?: 'danger' | 'primary';
     onAlternative?: () => void;
     alternativeText?: string;
+    showCancel?: boolean;
 }
 
 export default function ConfirmationModal({
@@ -25,6 +26,7 @@ export default function ConfirmationModal({
     variant = 'primary',
     onAlternative,
     alternativeText,
+    showCancel = true,
 }: Props) {
     if (!isOpen) return null;
 
@@ -35,7 +37,7 @@ export default function ConfirmationModal({
         };
         window.addEventListener('keydown', handleEsc);
         return () => window.removeEventListener('keydown', handleEsc);
-    }, [onClose]);
+    }, [isOpen, onClose]);
 
     return (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[60]" onClick={onClose}>
@@ -55,9 +57,11 @@ export default function ConfirmationModal({
                                 {alternativeText}
                             </button>
                         )}
-                        <Button variant="outline" onClick={onClose} size="sm">
-                            {cancelText}
-                        </Button>
+                        {showCancel && (
+                            <Button variant="outline" onClick={onClose} size="sm">
+                                {cancelText}
+                            </Button>
+                        )}
                         <Button
                             variant={variant}
                             onClick={() => {
