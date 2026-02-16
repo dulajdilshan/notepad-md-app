@@ -2,6 +2,7 @@ import type { TreeNode } from '../types';
 import type { FileSystemAdapter } from './interfaces';
 import { serverAdapter } from './serverAdapter';
 import { browserAdapter } from './browserAdapter';
+import { localStorageAdapter } from './localStorageAdapter';
 
 // Determine which adapter to use
 // For now, we default to server, but if rootHandle is present in IDB (checked via browserAdapter.initialize)
@@ -11,13 +12,16 @@ import { browserAdapter } from './browserAdapter';
 
 let currentAdapter: FileSystemAdapter = serverAdapter;
 
-export const setAdapter = (type: 'server' | 'browser') => {
-  currentAdapter = type === 'browser' ? browserAdapter : serverAdapter;
+export const setAdapter = (type: 'server' | 'browser' | 'local-storage') => {
+  if (type === 'browser') currentAdapter = browserAdapter;
+  else if (type === 'local-storage') currentAdapter = localStorageAdapter;
+  else currentAdapter = serverAdapter;
+
   localStorage.setItem('adapterType', type);
 };
 
 export const getAdapterType = () => {
-  return localStorage.getItem('adapterType') as 'server' | 'browser' || 'server';
+  return localStorage.getItem('adapterType') as 'server' | 'browser' | 'local-storage' || 'local-storage';
 };
 
 // Initialize
@@ -26,6 +30,8 @@ if (savedType === 'browser') {
   currentAdapter = browserAdapter;
   // We don't await this here, handled by hooks
   browserAdapter.initialize();
+} else if (savedType === 'local-storage') {
+  currentAdapter = localStorageAdapter;
 }
 
 export async function checkBrowserSession() {

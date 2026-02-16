@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="public/notepad.md-logo.png" alt="NotePad.md Logo" width="120" />
+</p>
+
 # NotePad.md
 
 A productivity-focused markdown note manager built with React and Express. Browse, edit, and manage markdown files from your local filesystem with a clean three-panel interface and built-in task tracking that syncs directly with your markdown checkboxes.
