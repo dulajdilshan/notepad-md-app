@@ -1,4 +1,4 @@
-import type { FileSystemAdapter } from './interfaces';
+
 import type { TreeNode } from '../types';
 import { get, set, del } from 'idb-keyval';
 
@@ -31,7 +31,7 @@ const INITIAL_FILES = {
     'Notes/Ideas.md': '# My Ideas\n\n- [ ] Build a cool app\n- [x] Learn React\n'
 };
 
-export const localStorageAdapter: FileSystemAdapter = {
+export const localStorageAdapter = {
     async fetchTree(): Promise<TreeNode[]> {
         let tree = await get<TreeNode[]>(ROOT_KEY);
         if (!tree) {
@@ -198,6 +198,54 @@ export const localStorageAdapter: FileSystemAdapter = {
                 await del(CONTENT_PREFIX + p);
             }
         }
+    },
+
+    async exportData(): Promise<{ [key: string]: string | object }> {
+        const tree = await get<TreeNode[]>(ROOT_KEY) || [];
+        const result: { [key: string]: string | object } = {};
+
+        const processNode = async (nodes: TreeNode[], currentObj: { [key: string]: string | object }) => {
+            for (const node of nodes) {
+                if (node.type === 'file') {
+                    const content = await get<string>(CONTENT_PREFIX + node.path);
+                    currentObj[node.name] = content || '';
+                } else if (node.type === 'folder') {
+                    const folderObj: { [key: string]: string | object } = {};
+                    currentObj[node.name] = folderObj;
+                    if (node.children) {
+                        await processNode(node.children, folderObj);
+                    }
+                }
+            }
+        };
+
+        await processNode(tree, result);
+        return result;
+    },
+
+    async importData(data: { [key: string]: any }): Promise<void> {
+        await clearStorage();
+        const tree: TreeNode[] = [];
+
+        const processImport = async (currentData: { [key: string]: any }, currentPath: string, currentNodes: TreeNode[]) => {
+            for (const [name, value] of Object.entries(currentData)) {
+                if (typeof value === 'string') {
+                    // It's a file
+                    const path = currentPath ? `${currentPath}/${name}` : name;
+                    currentNodes.push({ name, path, type: 'file' });
+                    await set(CONTENT_PREFIX + path, value);
+                } else if (typeof value === 'object' && value !== null) {
+                    // It's a folder
+                    const path = currentPath ? `${currentPath}/${name}` : name;
+                    const folderNode: TreeNode = { name, path, type: 'folder', children: [] };
+                    currentNodes.push(folderNode);
+                    await processImport(value, path, folderNode.children!);
+                }
+            }
+        };
+
+        await processImport(data, '', tree);
+        await set(ROOT_KEY, tree);
     }
 };
 

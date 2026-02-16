@@ -1,27 +1,20 @@
 import type { TreeNode } from '../types';
 import type { FileSystemAdapter } from './interfaces';
-import { serverAdapter } from './serverAdapter';
 import { browserAdapter } from './browserAdapter';
 import { localStorageAdapter } from './localStorageAdapter';
 
 // Determine which adapter to use
-// For now, we default to server, but if rootHandle is present in IDB (checked via browserAdapter.initialize)
-// or if we strictly want browser mode, we switch.
-// A simple way is to export a specific adapter based on state, but imports are static.
-// We can use a proxy or singleton.
+let currentAdapter: FileSystemAdapter = localStorageAdapter;
 
-let currentAdapter: FileSystemAdapter = serverAdapter;
-
-export const setAdapter = (type: 'server' | 'browser' | 'local-storage') => {
+export const setAdapter = (type: 'browser' | 'local-storage') => {
   if (type === 'browser') currentAdapter = browserAdapter;
-  else if (type === 'local-storage') currentAdapter = localStorageAdapter;
-  else currentAdapter = serverAdapter;
+  else currentAdapter = localStorageAdapter;
 
   localStorage.setItem('adapterType', type);
 };
 
 export const getAdapterType = () => {
-  return localStorage.getItem('adapterType') as 'server' | 'browser' | 'local-storage' || 'local-storage';
+  return localStorage.getItem('adapterType') as 'browser' | 'local-storage' || 'local-storage';
 };
 
 // Initialize
@@ -30,7 +23,7 @@ if (savedType === 'browser') {
   currentAdapter = browserAdapter;
   // We don't await this here, handled by hooks
   browserAdapter.initialize();
-} else if (savedType === 'local-storage') {
+} else {
   currentAdapter = localStorageAdapter;
 }
 
@@ -72,5 +65,9 @@ export async function deleteFile(path: string): Promise<void> {
 
 export async function deleteFolder(path: string): Promise<void> {
   return currentAdapter.deleteFolder(path);
+}
+
+export async function exportData(): Promise<{ [key: string]: string | object }> {
+  return currentAdapter.exportData();
 }
 

@@ -201,6 +201,32 @@ export const browserAdapter = {
         if (parentHandle) {
             await parentHandle.removeEntry(folderName, { recursive: true });
         }
+    },
+
+    async exportData(): Promise<{ [key: string]: string | object }> {
+        if (!rootHandle) throw new Error('No folder selected');
+
+        const result: { [key: string]: string | object } = {};
+
+        const processDirectory = async (handle: FileSystemDirectoryHandle, currentObj: { [key: string]: string | object }) => {
+            for await (const entry of handle.values()) {
+                if (entry.name.startsWith('.')) continue; // Skip hidden
+
+                if (entry.kind === 'file') {
+                    if (entry.name.endsWith('.md')) {
+                        const file = await entry.getFile();
+                        currentObj[entry.name] = await file.text();
+                    }
+                } else if (entry.kind === 'directory') {
+                    const folderObj: { [key: string]: string | object } = {};
+                    currentObj[entry.name] = folderObj;
+                    await processDirectory(entry as FileSystemDirectoryHandle, folderObj);
+                }
+            }
+        };
+
+        await processDirectory(rootHandle, result);
+        return result;
     }
 } as FileSystemAdapter & {
     openDirectory: () => Promise<void>;

@@ -15,6 +15,10 @@ export default function SettingsModal({ isOpen, onClose }: Props) {
     const [localPath, setLocalPath] = useState(rootPath);
     const [showPicker, setShowPicker] = useState(false);
     const [confirmClear, setConfirmClear] = useState(false);
+    const [isExporting, setIsExporting] = useState(false);
+    const [isImporting, setIsImporting] = useState(false);
+    const [importData, setImportData] = useState<any>(null);
+    const [confirmImport, setConfirmImport] = useState(false);
 
     // Feature detection
     const supportsFileSystem = 'showDirectoryPicker' in window;
@@ -51,6 +55,71 @@ export default function SettingsModal({ isOpen, onClose }: Props) {
         }
     };
 
+    const handleExport = async () => {
+        setIsExporting(true);
+        try {
+            const { exportData } = await import('../api/client');
+            const data = await exportData();
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `notepad-md-backup-${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        } catch (e) {
+            console.error('Export failed:', e);
+            alert('Failed to export data.');
+        } finally {
+            setIsExporting(false);
+        }
+    };
+
+    const handleImportClick = () => {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = '.json';
+        input.onchange = async (e) => {
+            const file = (e.target as HTMLInputElement).files?.[0];
+            if (!file) return;
+
+            try {
+                const text = await file.text();
+                const json = JSON.parse(text);
+                setImportData(json);
+                setConfirmImport(true);
+            } catch (err) {
+                console.error('Failed to parse JSON', err);
+                alert('Invalid JSON file');
+            }
+        };
+        input.click();
+    };
+
+    const handleImportConfirm = async () => {
+        if (!importData) return;
+        setIsImporting(true);
+        try {
+            const { localStorageAdapter } = await import('../api/localStorageAdapter');
+            const { setAdapter } = await import('../api/client');
+
+            await localStorageAdapter.importData(importData);
+
+            // Switch to local storage mode
+            setAdapter('local-storage');
+            setRootPath('BROWSER_STORAGE');
+
+            window.location.reload();
+        } catch (e) {
+            console.error('Import failed:', e);
+            alert('Failed to import data.');
+            setIsImporting(false);
+            setConfirmImport(false);
+        }
+    };
+
     return (
         <>
             <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50" onClick={onClose}>
@@ -65,7 +134,7 @@ export default function SettingsModal({ isOpen, onClose }: Props) {
                         </button>
                     </div>
 
-                    <div className="p-6 space-y-6 bg-white dark:bg-slate-800">
+                    <div className="p-6 space-y-6 bg-white dark:bg-slate-800 overflow-y-auto max-h-[60vh]">
                         {/* Theme Toggle */}
                         <ThemeToggle />
 
@@ -88,7 +157,7 @@ export default function SettingsModal({ isOpen, onClose }: Props) {
                                         const { setAdapter } = await import('../api/client');
                                         setAdapter('browser');
                                         setRootPath('BROWSER_NATIVE');
-                                        triggerRefresh(); // Force tree refresh even if rootPath was already BROWSER_NATIVE
+                                        triggerRefresh();
                                         onClose();
                                     } catch (e) {
                                         console.error(e);
@@ -130,6 +199,33 @@ export default function SettingsModal({ isOpen, onClose }: Props) {
                                     </Button>
                                 </>
                             )}
+                        </div>
+
+                        <hr className="border-slate-100 dark:border-slate-700" />
+
+                        {/* Data Management */}
+                        <div className="space-y-4">
+                            <h4 className="text-sm font-medium text-slate-900 dark:text-white">Data Management</h4>
+                            <div className="flex flex-col gap-2">
+                                <Button
+                                    variant="outline"
+                                    onClick={handleExport}
+                                    disabled={isExporting || isImporting}
+                                    className="w-full justify-center"
+                                    icon={isExporting ? <svg className="animate-spin h-5 w-5 text-current" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> : <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>}
+                                >
+                                    {isExporting ? 'Exporting...' : 'Export Data as JSON'}
+                                </Button>
+                                <Button
+                                    variant="outline"
+                                    onClick={handleImportClick}
+                                    disabled={isExporting || isImporting}
+                                    className="w-full justify-center"
+                                    icon={<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>}
+                                >
+                                    Import from JSON
+                                </Button>
+                            </div>
                         </div>
 
                         {rootPath === 'BROWSER_STORAGE' && (
@@ -188,6 +284,18 @@ export default function SettingsModal({ isOpen, onClose }: Props) {
                 title="Clear Browser Storage"
                 message="Are you sure you want to delete all files stored in this browser? This action cannot be undone."
                 confirmText="Clear Storage"
+                variant="danger"
+            />
+            <ConfirmationModal
+                isOpen={confirmImport}
+                onClose={() => {
+                    setConfirmImport(false);
+                    setImportData(null);
+                }}
+                onConfirm={handleImportConfirm}
+                title="Import & Overwrite Data"
+                message="This will overwrite all your existing in-browser data with the content from the selected JSON file. You will be switched to In-Browser Storage mode. This action cannot be undone."
+                confirmText={isImporting ? "Importing..." : "Import & Overwrite"}
                 variant="danger"
             />
         </>
