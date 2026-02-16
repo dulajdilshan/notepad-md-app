@@ -1,5 +1,6 @@
 import type { TreeNode } from '../types';
 import FileTree from './FileTree';
+import appLogo from '../assets/notepad.md-logo.png';
 
 interface Props {
   tree: TreeNode[];
@@ -16,7 +17,7 @@ export default function Sidebar({ tree, loading, selectedPath, onSelectFile, onC
   return (
     <div className="w-full bg-gradient-to-b from-white to-slate-50 dark:from-slate-900 dark:to-slate-950 border-r border-slate-200/60 dark:border-slate-800/60 flex flex-col h-full backdrop-blur-xl shadow-[4px_0_24px_-4px_rgba(0,0,0,0.05)] dark:shadow-none transition-all duration-300">
       <div className="px-5 py-4 border-b border-slate-200/50 dark:border-slate-800/50 flex items-center justify-between bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl sticky top-0 z-10 supports-[backdrop-filter]:bg-white/40">
-        <h1 className="text-lg font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-blue-600 dark:from-indigo-400 dark:to-blue-400 tracking-tight">NotePad.md</h1>
+        <img src={appLogo} alt="NotePad.md" className="h-11 w-auto" />
         <div className="flex gap-1">
           <button
             onClick={() => onCreateFile()}

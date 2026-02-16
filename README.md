@@ -8,7 +8,16 @@ A productivity-focused markdown note manager built with React and Express. Brows
 - **Seamless editing experience** — Switch between a full-featured code editor (with syntax highlighting, line numbers, and markdown language support) and a rendered preview with a single click.
 - **Todo extraction and sync** — Automatically extracts `- [ ]` and `- [x]` checkboxes from your markdown into a dedicated task panel. Toggling a task in the panel updates the markdown source and saves to disk — keeping everything in sync.
 - **File organization** — Create new files and folders directly from the app. The sidebar mirrors your directory structure with collapsible folders and file selection.
-- **Auto-save with manual override** — Changes are automatically saved after 1.5 seconds of inactivity. Use Ctrl/Cmd+S for immediate saves. An unsaved indicator keeps you informed.
+
+## Screenshots
+
+| **Light Mode** | **Dark Mode** |
+|:---:|:---:|
+| <img src="public/screenshots/desktop-light.png" alt="Desktop Light Mode" width="100%"> | <img src="public/screenshots/desktop-dark.png" alt="Desktop Dark Mode" width="100%"> |
+
+| **Mobile Light** | **Mobile Dark** |
+|:---:|:---:|
+| <img src="public/screenshots/mobile-light.png" alt="Mobile Light Mode" width="100%"> | <img src="public/screenshots/mobile-dark.png" alt="Mobile Dark Mode" width="100%"> |
 
 ## Architecture
 

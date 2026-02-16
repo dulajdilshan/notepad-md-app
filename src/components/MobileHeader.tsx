@@ -1,3 +1,4 @@
+import appLogo from '../assets/notepad.md-logo.png';
 
 interface Props {
     onToggleSidebar: () => void;
@@ -15,7 +16,11 @@ export default function MobileHeader({ onToggleSidebar, onToggleTodo, title = 'N
             >
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" /></svg>
             </button>
-            <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">{title}</span>
+            {title === 'NotePad.md' ? (
+                <img src={appLogo} alt="NotePad.md" className="h-9 w-auto" />
+            ) : (
+                <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">{title}</span>
+            )}
             <button
                 onClick={onToggleTodo}
                 className="p-2 -mr-2 text-slate-700 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors"
