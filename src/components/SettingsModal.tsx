@@ -19,6 +19,7 @@ export default function SettingsModal({ isOpen, onClose }: Props) {
     const [isImporting, setIsImporting] = useState(false);
     const [importData, setImportData] = useState<any>(null);
     const [confirmImport, setConfirmImport] = useState(false);
+    const [existingNoteCount, setExistingNoteCount] = useState(0);
 
     // Feature detection
     const supportsFileSystem = 'showDirectoryPicker' in window;
@@ -88,6 +89,12 @@ export default function SettingsModal({ isOpen, onClose }: Props) {
             try {
                 const text = await file.text();
                 const json = JSON.parse(text);
+
+                // Check for existing notes
+                const { localStorageAdapter } = await import('../api/localStorageAdapter');
+                const count = await localStorageAdapter.getNoteCount();
+                setExistingNoteCount(count);
+
                 setImportData(json);
                 setConfirmImport(true);
             } catch (err) {
@@ -117,6 +124,18 @@ export default function SettingsModal({ isOpen, onClose }: Props) {
             alert('Failed to import data.');
             setIsImporting(false);
             setConfirmImport(false);
+        }
+    };
+
+    const handleSwitchToStorage = async () => {
+        try {
+            const { setAdapter } = await import('../api/client');
+            setAdapter('local-storage');
+            setRootPath('BROWSER_STORAGE');
+            window.location.reload();
+        } catch (e) {
+            console.error(e);
+            alert('Failed to switch to in-browser storage.');
         }
     };
 
@@ -227,9 +246,11 @@ export default function SettingsModal({ isOpen, onClose }: Props) {
                                     >
                                         Import from JSON
                                     </Button>
-                                    <p className="text-xs text-slate-500 dark:text-slate-400 px-1">
-                                        Note: Importing data will replace your current notes and automatically switch you to In-Browser Storage mode.
-                                    </p>
+                                    {rootPath === 'BROWSER_STORAGE' && (
+                                        <p className="text-xs text-slate-500 dark:text-slate-400 px-1">
+                                            Note: Importing data will replace your current notes and automatically switch you to In-Browser Storage mode.
+                                        </p>
+                                    )}
                                 </div>
                             </div>
                         </div>
@@ -300,9 +321,11 @@ export default function SettingsModal({ isOpen, onClose }: Props) {
                 }}
                 onConfirm={handleImportConfirm}
                 title="Import & Overwrite Data"
-                message="This will overwrite all your existing in-browser data with the content from the selected JSON file. You will be switched to In-Browser Storage mode. This action cannot be undone."
+                message={`This will overwrite all your existing in-browser data with the content from the selected JSON file.\n\nFound ${existingNoteCount} existing notes in In-Browser Storage.${rootPath !== 'BROWSER_STORAGE' ? '\n\nYou will be switched to In-Browser Storage mode.' : ''}\n\nThis action cannot be undone.`}
                 confirmText={isImporting ? "Importing..." : "Import & Overwrite"}
                 variant="danger"
+                onAlternative={existingNoteCount > 0 ? handleSwitchToStorage : undefined}
+                alternativeText="Load Existing Data"
             />
         </>
     );

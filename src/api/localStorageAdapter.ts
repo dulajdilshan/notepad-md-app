@@ -1,6 +1,6 @@
 
 import type { TreeNode } from '../types';
-import { get, set, del } from 'idb-keyval';
+import { get, set, del, keys } from 'idb-keyval';
 
 const ROOT_KEY = 'vfs:root';
 const CONTENT_PREFIX = 'vfs:content:';
@@ -245,7 +245,13 @@ export const localStorageAdapter = {
         };
 
         await processImport(data, '', tree);
+
         await set(ROOT_KEY, tree);
+    },
+
+    async getNoteCount(): Promise<number> {
+        const allKeys = await keys();
+        return allKeys.filter(k => typeof k === 'string' && k.startsWith(CONTENT_PREFIX)).length;
     }
 };
 
