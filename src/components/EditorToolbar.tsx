@@ -44,7 +44,7 @@ export default function EditorToolbar({ fileName, viewMode, isDirty, isSaving, o
         <button
           onClick={onToggleMode}
           className={`p-1.5 rounded-md transition-all duration-200 sm:hidden ${viewMode === 'edit'
-            ? 'text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800'
+            ? 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700'
             : 'text-indigo-500 bg-indigo-50 dark:bg-indigo-900/30'
             }`}
         >
