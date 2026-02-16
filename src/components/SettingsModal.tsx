@@ -1,10 +1,13 @@
 import { useState, useEffect } from 'react';
 import { useSettings } from '../contexts/SettingsContext';
+import { useDataManagement } from '../hooks/useDataManagement';
 import FolderPicker from './FolderPicker';
 import Button from './ui/Button';
 import ThemeToggle from './ui/ThemeToggle';
 import ConfirmationModal from './ConfirmationModal';
-import { version } from '../../package.json';
+import FileSystemSection from './settings/FileSystemSection';
+import DataManagementSection from './settings/DataManagementSection';
+import DangerZone from './settings/DangerZone';
 
 interface Props {
     isOpen: boolean;
@@ -15,12 +18,22 @@ export default function SettingsModal({ isOpen, onClose }: Props) {
     const { rootPath, setRootPath, triggerRefresh } = useSettings();
     const [localPath, setLocalPath] = useState(rootPath);
     const [showPicker, setShowPicker] = useState(false);
-    const [confirmClear, setConfirmClear] = useState(false);
-    const [isExporting, setIsExporting] = useState(false);
-    const [isImporting, setIsImporting] = useState(false);
-    const [importData, setImportData] = useState<any>(null);
-    const [confirmImport, setConfirmImport] = useState(false);
-    const [existingNoteCount, setExistingNoteCount] = useState(0);
+
+    // Use custom hook for data management logic
+    const {
+        isExporting,
+        isImporting,
+        confirmImport,
+        setConfirmImport,
+        confirmClear,
+        setConfirmClear,
+        existingNoteCount,
+        handleExport,
+        handleImportClick,
+        handleImportConfirm,
+        handleClearStorage,
+        handleSwitchToStorage
+    } = useDataManagement();
 
     // Feature detection
     const supportsFileSystem = 'showDirectoryPicker' in window;
@@ -46,106 +59,19 @@ export default function SettingsModal({ isOpen, onClose }: Props) {
         onClose();
     };
 
-    const handleClearStorage = async () => {
+    const handleOpenFolder = async () => {
+        if (!supportsFileSystem) return;
         try {
-            const { clearStorage } = await import('../api/localStorageAdapter');
-            await clearStorage();
-            window.location.reload();
-        } catch (e) {
-            console.error('Failed to clear storage:', e);
-            alert('Failed to clear storage.');
-        }
-    };
-
-    const handleExport = async () => {
-        setIsExporting(true);
-        try {
-            const { exportData } = await import('../api/client');
-            const data = await exportData();
-            const exportObj = {
-                "notepad.md-version": version,
-                content: data
-            };
-            const blob = new Blob([JSON.stringify(exportObj, null, 2)], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `notepad-md-backup-${new Date().toISOString().split('T')[0]}.json`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-        } catch (e) {
-            console.error('Export failed:', e);
-            alert('Failed to export data.');
-        } finally {
-            setIsExporting(false);
-        }
-    };
-
-    const handleImportClick = () => {
-        const input = document.createElement('input');
-        input.type = 'file';
-        input.accept = '.json';
-        input.onchange = async (e) => {
-            const file = (e.target as HTMLInputElement).files?.[0];
-            if (!file) return;
-
-            try {
-                const text = await file.text();
-                const json = JSON.parse(text);
-
-                let contentToImport = json;
-                if (json['notepad.md-version']) {
-                    contentToImport = json.content;
-                }
-
-                // Check for existing notes
-                const { localStorageAdapter } = await import('../api/localStorageAdapter');
-                const count = await localStorageAdapter.getNoteCount();
-                setExistingNoteCount(count);
-
-                setImportData(contentToImport);
-                setConfirmImport(true);
-            } catch (err) {
-                console.error('Failed to parse JSON', err);
-                alert('Invalid JSON file');
-            }
-        };
-        input.click();
-    };
-
-    const handleImportConfirm = async () => {
-        if (!importData) return;
-        setIsImporting(true);
-        try {
-            const { localStorageAdapter } = await import('../api/localStorageAdapter');
+            const { browserAdapter } = await import('../api/browserAdapter');
+            await browserAdapter.openDirectory();
             const { setAdapter } = await import('../api/client');
-
-            await localStorageAdapter.importData(importData);
-
-            // Switch to local storage mode
-            setAdapter('local-storage');
-            setRootPath('BROWSER_STORAGE');
-
-            window.location.reload();
-        } catch (e) {
-            console.error('Import failed:', e);
-            alert('Failed to import data.');
-            setIsImporting(false);
-            setConfirmImport(false);
-        }
-    };
-
-    const handleSwitchToStorage = async () => {
-        try {
-            const { setAdapter } = await import('../api/client');
-            setAdapter('local-storage');
-            setRootPath('BROWSER_STORAGE');
-            window.location.reload();
+            setAdapter('browser');
+            setRootPath('BROWSER_NATIVE');
+            triggerRefresh();
+            onClose();
         } catch (e) {
             console.error(e);
-            alert('Failed to switch to in-browser storage.');
+            alert('Failed to open folder. Please try again.');
         }
     };
 
@@ -170,120 +96,28 @@ export default function SettingsModal({ isOpen, onClose }: Props) {
                         <hr className="border-slate-100 dark:border-slate-700" />
 
                         {/* Root Path Config */}
-                        <div className="space-y-2">
-                            <h4 className="text-sm font-medium text-slate-900 dark:text-white">File System Access</h4>
-                            <p className="text-xs text-slate-500 dark:text-slate-400 mb-2">
-                                Switch between Browser Native (Chrome/Edge) or In-Browser Storage (Safari/Firefox).
-                            </p>
-
-                            <Button
-                                disabled={!supportsFileSystem}
-                                onClick={async () => {
-                                    if (!supportsFileSystem) return;
-                                    try {
-                                        const { browserAdapter } = await import('../api/browserAdapter');
-                                        await browserAdapter.openDirectory();
-                                        const { setAdapter } = await import('../api/client');
-                                        setAdapter('browser');
-                                        setRootPath('BROWSER_NATIVE');
-                                        triggerRefresh();
-                                        onClose();
-                                    } catch (e) {
-                                        console.error(e);
-                                        alert('Failed to open folder. Please try again.');
-                                    }
-                                }}
-                                variant={supportsFileSystem ? 'primary' : 'outline'}
-                                className={!supportsFileSystem ? 'bg-slate-100 text-slate-400 cursor-not-allowed dark:bg-slate-700 dark:text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700 w-full' : 'w-full'}
-                                icon={<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 19a2 2 0 01-2-2V7a2 2 0 012-2h4l2 2h4a2 2 0 012 2v1M5 19h14a2 2 0 002-2v-5a2 2 0 00-2-2H9a2 2 0 00-2 2v5a2 2 0 01-2 2z" /></svg>}
-                            >
-                                Open Local Folder {supportsFileSystem ? '' : '(Not Supported)'}
-                            </Button>
-
-                            {rootPath !== 'BROWSER_STORAGE' && (
-                                <>
-                                    <div className="relative py-2">
-                                        <div className="relative flex justify-center text-xs uppercase">
-                                            <span className="bg-white dark:bg-slate-800 px-2 text-slate-500 dark:text-slate-400">Or</span>
-                                        </div>
-                                    </div>
-
-                                    <Button
-                                        variant="secondary"
-                                        onClick={async () => {
-                                            try {
-                                                const { setAdapter } = await import('../api/client');
-                                                setAdapter('local-storage');
-                                                setRootPath('BROWSER_STORAGE');
-                                                window.location.reload();
-                                            } catch (e) {
-                                                console.error(e);
-                                                alert('Failed to switch to in-browser storage.');
-                                            }
-                                        }}
-                                        className="w-full"
-                                        icon={<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>}
-                                    >
-                                        Use In-Browser Storage
-                                    </Button>
-                                </>
-                            )}
-                        </div>
+                        <FileSystemSection
+                            rootPath={rootPath}
+                            supportsFileSystem={supportsFileSystem}
+                            onOpenFolder={handleOpenFolder}
+                            onSwitchToStorage={handleSwitchToStorage}
+                        />
 
                         <hr className="border-slate-100 dark:border-slate-700" />
 
                         {/* Data Management */}
-                        <div className="space-y-4">
-                            <h4 className="text-sm font-medium text-slate-900 dark:text-white">Data Management</h4>
-                            <div className="grid grid-cols-1 gap-3">
-                                <Button
-                                    variant="secondary"
-                                    onClick={handleExport}
-                                    disabled={isExporting || isImporting}
-                                    className="w-full justify-center"
-                                    icon={isExporting ? <svg className="animate-spin h-5 w-5 text-current" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> : <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>}
-                                >
-                                    {isExporting ? 'Exporting...' : 'Export as JSON'}
-                                </Button>
-
-                                <div className="space-y-2">
-                                    <Button
-                                        variant="outline"
-                                        onClick={handleImportClick}
-                                        disabled={isExporting || isImporting}
-                                        className="w-full justify-center border-slate-300 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-800"
-                                        icon={<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>}
-                                    >
-                                        Import from JSON
-                                    </Button>
-                                    {rootPath === 'BROWSER_STORAGE' && (
-                                        <p className="text-xs text-slate-500 dark:text-slate-400 px-1">
-                                            Note: Importing data will replace your current notes and automatically switch you to In-Browser Storage mode.
-                                        </p>
-                                    )}
-                                </div>
-                            </div>
-                        </div>
+                        <DataManagementSection
+                            isExporting={isExporting}
+                            isImporting={isImporting}
+                            onExport={handleExport}
+                            onImport={handleImportClick}
+                            rootPath={rootPath}
+                        />
 
                         {rootPath === 'BROWSER_STORAGE' && (
                             <>
                                 <hr className="border-slate-100 dark:border-slate-700" />
-                                <div className="space-y-4">
-                                    <div className="bg-red-50 dark:bg-red-900/20 p-4 rounded-lg border border-red-100 dark:border-red-900/30">
-                                        <h4 className="text-sm font-medium text-red-800 dark:text-red-300 mb-1">Danger Zone</h4>
-                                        <p className="text-xs text-red-600 dark:text-red-400 mb-3">
-                                            Clear all files and folders stored in the browser. This action cannot be undone.
-                                        </p>
-                                        <Button
-                                            variant="danger"
-                                            size="sm"
-                                            onClick={() => setConfirmClear(true)}
-                                            className="w-full"
-                                        >
-                                            Clear In-Browser Storage
-                                        </Button>
-                                    </div>
-                                </div>
+                                <DangerZone onClearStorage={() => setConfirmClear(true)} />
                             </>
                         )}
                     </div>
@@ -327,7 +161,6 @@ export default function SettingsModal({ isOpen, onClose }: Props) {
                 isOpen={confirmImport}
                 onClose={() => {
                     setConfirmImport(false);
-                    setImportData(null);
                 }}
                 onConfirm={handleImportConfirm}
                 title="Import & Overwrite Data"

@@ -4,6 +4,7 @@ import { get, set, del, keys } from 'idb-keyval';
 
 const ROOT_KEY = 'vfs:root';
 const CONTENT_PREFIX = 'vfs:content:';
+const VERSION_KEY = 'vfs:version';
 
 // Initial state for the demo
 const INITIAL_TREE: TreeNode[] = [
@@ -223,7 +224,7 @@ export const localStorageAdapter = {
         return result;
     },
 
-    async importData(data: { [key: string]: any }): Promise<void> {
+    async importData(data: { [key: string]: any }, version?: string): Promise<void> {
         await clearStorage();
         const tree: TreeNode[] = [];
 
@@ -247,11 +248,23 @@ export const localStorageAdapter = {
         await processImport(data, '', tree);
 
         await set(ROOT_KEY, tree);
+
+        if (version) {
+            await set(VERSION_KEY, version);
+        }
     },
 
     async getNoteCount(): Promise<number> {
         const allKeys = await keys();
         return allKeys.filter(k => typeof k === 'string' && k.startsWith(CONTENT_PREFIX)).length;
+    },
+
+    async getVersion(): Promise<string | null> {
+        return await get<string>(VERSION_KEY) || null;
+    },
+
+    async setVersion(version: string): Promise<void> {
+        await set(VERSION_KEY, version);
     }
 };
 
@@ -259,7 +272,7 @@ export async function clearStorage(): Promise<void> {
     // Clear all keys that match our prefixes
     const keys = await import('idb-keyval').then(m => m.keys());
     for (const key of keys) {
-        if (typeof key === 'string' && (key === ROOT_KEY || key.startsWith(CONTENT_PREFIX))) {
+        if (typeof key === 'string' && (key === ROOT_KEY || key.startsWith(CONTENT_PREFIX) || key === VERSION_KEY)) {
             await del(key);
         }
     }
