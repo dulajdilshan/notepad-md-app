@@ -4,6 +4,7 @@ import FolderPicker from './FolderPicker';
 import Button from './ui/Button';
 import ThemeToggle from './ui/ThemeToggle';
 import ConfirmationModal from './ConfirmationModal';
+import { version } from '../../package.json';
 
 interface Props {
     isOpen: boolean;
@@ -61,7 +62,11 @@ export default function SettingsModal({ isOpen, onClose }: Props) {
         try {
             const { exportData } = await import('../api/client');
             const data = await exportData();
-            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const exportObj = {
+                "notepad.md-version": version,
+                content: data
+            };
+            const blob = new Blob([JSON.stringify(exportObj, null, 2)], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
@@ -90,12 +95,17 @@ export default function SettingsModal({ isOpen, onClose }: Props) {
                 const text = await file.text();
                 const json = JSON.parse(text);
 
+                let contentToImport = json;
+                if (json['notepad.md-version']) {
+                    contentToImport = json.content;
+                }
+
                 // Check for existing notes
                 const { localStorageAdapter } = await import('../api/localStorageAdapter');
                 const count = await localStorageAdapter.getNoteCount();
                 setExistingNoteCount(count);
 
-                setImportData(json);
+                setImportData(contentToImport);
                 setConfirmImport(true);
             } catch (err) {
                 console.error('Failed to parse JSON', err);
