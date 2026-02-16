@@ -21,13 +21,20 @@ A privacy-focused, client-side markdown note manager built with React. Edit and 
 
 ## Screenshots
 
-| **Light Mode** | **Dark Mode** |
+### Core Experience
+| Markdown Editor | Preview Mode |
 |:---:|:---:|
-| <img src="public/screenshots/desktop-light.png" alt="Desktop Light Mode" width="100%"> | <img src="public/screenshots/desktop-dark.png" alt="Desktop Dark Mode" width="100%"> |
+| <img src="public/screenshots/desktop_markdown_editor.png" alt="Markdown Editor" width="100%"> | <img src="public/screenshots/desktop_markdown_viewer.png" alt="Preview Mode" width="100%"> |
 
-| **Mobile Light** | **Mobile Dark** |
+### Features & Theming
+| Dark Mode | Settings & Customization |
 |:---:|:---:|
-| <img src="public/screenshots/mobile-light.png" alt="Mobile Light Mode" width="100%"> | <img src="public/screenshots/mobile-dark.png" alt="Mobile Dark Mode" width="100%"> |
+| <img src="public/screenshots/desktop_dark_theme.png" alt="Dark Mode" width="100%"> | <img src="public/screenshots/desktop_settings.png" alt="Settings" width="100%"> |
+
+### Data Management
+| File Organization | Data Import |
+|:---:|:---:|
+| <img src="public/screenshots/desktop_create_new_folder.png" alt="Create New Folder" width="100%"> | <img src="public/screenshots/desktop_import_from_json.png" alt="Import from JSON" width="100%"> |
 
 ## Getting Started
 
