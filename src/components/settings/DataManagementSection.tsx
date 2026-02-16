@@ -1,5 +1,6 @@
 import SecondaryButton from '../ui/SecondaryButton';
 import OutlineButton from '../ui/OutlineButton';
+import { ADAPTER_TYPE } from '../../constants';
 
 interface Props {
     isExporting: boolean;
@@ -32,7 +33,7 @@ export default function DataManagementSection({ isExporting, isImporting, onExpo
                     >
                         Import from JSON
                     </OutlineButton>
-                    {rootPath === 'BROWSER_STORAGE' && (
+                    {rootPath === ADAPTER_TYPE.STORAGE && (
                         <p className="text-xs text-slate-500 dark:text-slate-400 px-1">
                             Note: Importing data will replace your current notes and automatically switch you to In-Browser Storage mode.
                         </p>

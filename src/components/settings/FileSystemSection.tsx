@@ -1,6 +1,7 @@
 import PrimaryButton from '../ui/PrimaryButton';
 import OutlineButton from '../ui/OutlineButton';
 import SecondaryButton from '../ui/SecondaryButton';
+import { ADAPTER_TYPE } from '../../constants';
 
 interface Props {
     rootPath: string;
@@ -35,7 +36,7 @@ export default function FileSystemSection({ rootPath, supportsFileSystem, onOpen
                 </OutlineButton>
             )}
 
-            {rootPath !== 'BROWSER_STORAGE' && (
+            {rootPath !== ADAPTER_TYPE.STORAGE && (
                 <>
                     <div className="relative py-2">
                         <div className="relative flex justify-center text-xs uppercase">

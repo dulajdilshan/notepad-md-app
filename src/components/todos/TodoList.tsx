@@ -1,8 +1,8 @@
-import type { TodoItem as TodoItemType } from '../types';
-import TodoItem from './TodoItem';
+import type { TodoItem } from '../../types';
+import TodoCheckbox from './TodoCheckbox';
 
 interface Props {
-  todos: TodoItemType[];
+  todos: TodoItem[];
   onToggle: (lineIndex: number) => void;
 }
 
@@ -18,12 +18,7 @@ export default function TodoList({ todos, onToggle }: Props) {
     }
     acc[heading].push(todo);
     return acc;
-  }, {} as Record<string, TodoItemType[]>);
-
-  // Preserve order of headings based on first appearance in list?
-  // Or just iterate standard object keys? Object keys order is insertion order usually in modern JS for strings.
-  // Better to use dedicated array to preserve order if needed, but for now simple iteration is likely fine
-  // as the reduce will create keys in order of encountering them.
+  }, {} as Record<string, TodoItem[]>);
 
   return (
     <div className="space-y-4">
@@ -34,7 +29,7 @@ export default function TodoList({ todos, onToggle }: Props) {
           </h3>
           <div className="space-y-0.5">
             {items.map((todo) => (
-              <TodoItem key={todo.lineIndex} todo={todo} onToggle={onToggle} />
+              <TodoCheckbox key={todo.lineIndex} todo={todo} onToggle={onToggle} />
             ))}
           </div>
         </div>

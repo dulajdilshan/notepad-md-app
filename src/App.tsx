@@ -1,34 +1,30 @@
 import { useState, useCallback } from 'react';
-import Sidebar from './components/Sidebar';
-import MainPanel from './components/MainPanel';
-import TodoPanel from './components/TodoPanel';
-import CreateItemModal from './components/CreateItemModal';
-import SettingsModal from './components/SettingsModal';
-import WelcomeModal from './components/WelcomeModal';
-import RestoreSessionModal from './components/RestoreSessionModal';
-import ConfirmationModal from './components/ConfirmationModal';
-import { SettingsProvider, useSettings } from './contexts/SettingsContext'; // Need to import this
+import Sidebar from './components/layout/Sidebar';
+import MainPanel from './components/layout/MainPanel';
+import TodoPanel from './components/todos/TodoPanel';
+import CreateItemModal from './components/modals/CreateItemModal';
+import SettingsModal from './components/modals/SettingsModal';
+import WelcomeModal from './components/modals/WelcomeModal';
+import RestoreSessionModal from './components/modals/RestoreSessionModal';
+import ConfirmationModal from './components/modals/ConfirmationModal';
+import { SettingsProvider, useSettings } from './contexts/SettingsContext';
 import { useFileTree } from './hooks/useFileTree';
 import { useFileContent } from './hooks/useFileContent';
 import { useTodos } from './hooks/useTodos';
 import { createFile, createFolder, deleteFile, deleteFolder } from './api/client';
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
+import type { ViewMode, CreateItemModal as CreateItemModalType, ConfirmationState } from './types';
 
 function AppContent() {
   const { tree, loading, refresh, permissionNeeded, restoreSession } = useFileTree();
   const { setRootPath } = useSettings();
   const [selectedPath, setSelectedPath] = useState<string | null>(null);
-  const [viewMode, setViewMode] = useState<'edit' | 'preview'>('edit');
-  const [modal, setModal] = useState<{ type: 'file' | 'folder'; basePath?: string } | null>(null);
+  const [viewMode, setViewMode] = useState<ViewMode>('edit');
+  const [modal, setModal] = useState<CreateItemModalType | null>(null);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const [isMobileTodoOpen, setIsMobileTodoOpen] = useState(false);
-  const [confirmation, setConfirmation] = useState<{
-    isOpen: boolean;
-    title: string;
-    message: string;
-    onConfirm: () => void;
-  }>({
+  const [confirmation, setConfirmation] = useState<ConfirmationState>({
     isOpen: false,
     title: '',
     message: '',

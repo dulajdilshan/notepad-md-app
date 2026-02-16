@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
+import { LOCAL_STORAGE_KEYS } from '../constants';
 
 interface SettingsContextType {
     theme: 'light' | 'dark';
@@ -13,17 +14,17 @@ const SettingsContext = createContext<SettingsContextType | null>(null);
 
 export function SettingsProvider({ children }: { children: ReactNode }) {
     const [theme, setTheme] = useState<'light' | 'dark'>(() => {
-        return (localStorage.getItem('theme') as 'light' | 'dark') || 'light';
+        return (localStorage.getItem(LOCAL_STORAGE_KEYS.THEME) as 'light' | 'dark') || 'light';
     });
 
     const [rootPath, setRootPathState] = useState<string>(() => {
-        return localStorage.getItem('rootPath') || '';
+        return localStorage.getItem(LOCAL_STORAGE_KEYS.ROOT_PATH) || '';
     });
 
     const [refreshKey, setRefreshKey] = useState(0);
 
     useEffect(() => {
-        localStorage.setItem('theme', theme);
+        localStorage.setItem(LOCAL_STORAGE_KEYS.THEME, theme);
         const root = window.document.documentElement;
         if (theme === 'dark') {
             root.classList.add('dark');
@@ -35,9 +36,9 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
     const setRootPath = (path: string) => {
         setRootPathState(path);
         if (path) {
-            localStorage.setItem('rootPath', path);
+            localStorage.setItem(LOCAL_STORAGE_KEYS.ROOT_PATH, path);
         } else {
-            localStorage.removeItem('rootPath');
+            localStorage.removeItem(LOCAL_STORAGE_KEYS.ROOT_PATH);
         }
     };
 

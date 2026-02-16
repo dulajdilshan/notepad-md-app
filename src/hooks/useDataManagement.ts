@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useSettings } from '../contexts/SettingsContext';
 import { version } from '../../package.json';
+import { ADAPTER_TYPE } from '../constants';
 
 export function useDataManagement() {
     const { rootPath, setRootPath } = useSettings();
@@ -111,7 +112,7 @@ export function useDataManagement() {
             }
 
             setAdapter('local-storage');
-            setRootPath('BROWSER_STORAGE');
+            setRootPath(ADAPTER_TYPE.STORAGE);
 
             window.location.reload();
         } catch (e) {
@@ -137,7 +138,7 @@ export function useDataManagement() {
         try {
             const { setAdapter } = await import('../api/client');
             setAdapter('local-storage');
-            setRootPath('BROWSER_STORAGE');
+            setRootPath(ADAPTER_TYPE.STORAGE);
             window.location.reload();
         } catch (e) {
             console.error(e);

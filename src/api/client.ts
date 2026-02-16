@@ -2,6 +2,7 @@ import type { TreeNode } from '../types';
 import type { FileSystemAdapter } from './interfaces';
 import { browserAdapter } from './browserAdapter';
 import { localStorageAdapter } from './localStorageAdapter';
+import { LOCAL_STORAGE_KEYS } from '../constants';
 
 // Determine which adapter to use
 let currentAdapter: FileSystemAdapter = localStorageAdapter;
@@ -10,11 +11,11 @@ export const setAdapter = (type: 'browser' | 'local-storage') => {
   if (type === 'browser') currentAdapter = browserAdapter;
   else currentAdapter = localStorageAdapter;
 
-  localStorage.setItem('adapterType', type);
+  localStorage.setItem(LOCAL_STORAGE_KEYS.ADAPTER_TYPE, type);
 };
 
 export const getAdapterType = () => {
-  return localStorage.getItem('adapterType') as 'browser' | 'local-storage' || 'local-storage';
+  return localStorage.getItem(LOCAL_STORAGE_KEYS.ADAPTER_TYPE) as 'browser' | 'local-storage' || 'local-storage';
 };
 
 // Initialize

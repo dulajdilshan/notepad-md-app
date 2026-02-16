@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import type { TreeNode as TreeNodeType } from '../types';
+import type { TreeNode } from '../../types';
 
 interface Props {
-  node: TreeNodeType;
+  node: TreeNode;
   selectedPath: string | null;
   onSelectFile: (path: string) => void;
   onDelete: (path: string, type: 'file' | 'folder') => void;
@@ -11,7 +11,7 @@ interface Props {
   depth?: number;
 }
 
-export default function TreeNode({ node, selectedPath, onSelectFile, onDelete, onCreateFile, onCreateFolder, depth = 0 }: Props) {
+export default function FileTreeNode({ node, selectedPath, onSelectFile, onDelete, onCreateFile, onCreateFolder, depth = 0 }: Props) {
   const [expanded, setExpanded] = useState(true);
   const isSelected = node.path === selectedPath;
 
@@ -69,7 +69,7 @@ export default function TreeNode({ node, selectedPath, onSelectFile, onDelete, o
         {expanded && node.children && (
           <div>
             {node.children.map((child) => (
-              <TreeNode
+              <FileTreeNode
                 key={child.path}
                 node={child}
                 selectedPath={selectedPath}

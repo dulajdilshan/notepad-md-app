@@ -1,23 +1,10 @@
-
-import { useSettings } from '../contexts/SettingsContext';
-import PrimaryButton from './ui/PrimaryButton';
-import OutlineButton from './ui/OutlineButton';
-import SecondaryButton from './ui/SecondaryButton';
-import appLogo from '../assets/notepad.md-logo.png';
-import FeatureWarning from './ui/FeatureWarning';
-
-// Note: The original component didn't receive props but used global state. 
-// However, the refactored SettingsModal uses it as a modal maybe? 
-// Wait, WelcomeModal in the grep search earlier:
-// src/components/WelcomeModal.tsx is used in App.tsx potentially.
-// Let's check App.tsx usage if I can, but based on the previous file content, it exported `WelcomeModal({ isOpen, onClose }: Props)`. 
-// BUT the original file content I viewed in step 2320 exported `export default function WelcomeModal() { ... }` with NO props.
-// It conditionally returned null if `rootPath` was set.
-// My previous edit introduced `isOpen` and `onClose` props.
-// I should revert to the original signature if I'm not sure, OR check App.tsx. 
-// The original file (step 2320) did NOT have props. It returned null if rootPath is set.
-// This means it acts as a self-managed modal.
-// I will revert to the original logic (no props, checks rootPath) but use valid button components.
+import { useSettings } from '../../contexts/SettingsContext';
+import PrimaryButton from '../ui/PrimaryButton';
+import OutlineButton from '../ui/OutlineButton';
+import SecondaryButton from '../ui/SecondaryButton';
+import appLogo from '../../assets/notepad.md-logo.png';
+import FeatureWarning from '../ui/FeatureWarning';
+import { ADAPTER_TYPE } from '../../constants';
 
 export default function WelcomeModal() {
     const { rootPath, setRootPath } = useSettings();
@@ -29,9 +16,9 @@ export default function WelcomeModal() {
 
     const handleLocalStorage = async () => {
         try {
-            const { setAdapter } = await import('../api/client');
+            const { setAdapter } = await import('../../api/client');
             setAdapter('local-storage');
-            setRootPath('BROWSER_STORAGE');
+            setRootPath(ADAPTER_TYPE.STORAGE);
             window.location.reload();
         } catch (e) {
             console.error(e);
@@ -62,11 +49,11 @@ export default function WelcomeModal() {
                             <PrimaryButton
                                 onClick={async () => {
                                     try {
-                                        const { browserAdapter } = await import('../api/browserAdapter');
+                                        const { browserAdapter } = await import('../../api/browserAdapter');
                                         await browserAdapter.openDirectory();
-                                        const { setAdapter } = await import('../api/client');
+                                        const { setAdapter } = await import('../../api/client');
                                         setAdapter('browser');
-                                        setRootPath('BROWSER_NATIVE');
+                                        setRootPath(ADAPTER_TYPE.BROWSER);
                                     } catch (e) {
                                         console.error(e);
                                     }
@@ -86,7 +73,6 @@ export default function WelcomeModal() {
                             </OutlineButton>
                         )}
 
-                        {/* Secondary Button was used for In-Browser Storage demo */}
                         <SecondaryButton
                             onClick={handleLocalStorage}
                             className="w-full justify-center"

@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
-import OutlineButton from './ui/OutlineButton';
-import PrimaryButton from './ui/PrimaryButton';
-import DangerButton from './ui/DangerButton';
+import OutlineButton from '../ui/OutlineButton';
+import PrimaryButton from '../ui/PrimaryButton';
+import DangerButton from '../ui/DangerButton';
 
 interface Props {
     isOpen: boolean;
@@ -30,16 +30,16 @@ export default function ConfirmationModal({
     alternativeText,
     showCancel = true,
 }: Props) {
-    if (!isOpen) return null;
-
-    // eslint-disable-next-line react-hooks/rules-of-hooks
     useEffect(() => {
+        if (!isOpen) return;
         const handleEsc = (e: KeyboardEvent) => {
             if (e.key === 'Escape') onClose();
         };
         window.addEventListener('keydown', handleEsc);
         return () => window.removeEventListener('keydown', handleEsc);
     }, [isOpen, onClose]);
+
+    if (!isOpen) return null;
 
     const ConfirmButtonComponent = variant === 'danger' ? DangerButton : PrimaryButton;
 

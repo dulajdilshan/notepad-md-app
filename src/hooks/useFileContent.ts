@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { fetchFile, saveFile } from '../api/client';
+import { AUTO_SAVE_DELAY, SAVE_INDICATOR_DELAY } from '../constants';
 
 export function useFileContent(filePath: string | null) {
   const [content, setContent] = useState('');
@@ -36,7 +37,7 @@ export function useFileContent(filePath: string | null) {
     } catch (err) {
       console.error('Failed to save:', err);
     } finally {
-      setTimeout(() => setSaving(false), 500); // Small delay to show "Saving..."
+      setTimeout(() => setSaving(false), SAVE_INDICATOR_DELAY); // Small delay to show "Saving..."
     }
   }, [filePath, content, isDirty]);
 
@@ -52,9 +53,9 @@ export function useFileContent(filePath: string | null) {
       } catch (err) {
         console.error('Auto-save failed:', err);
       } finally {
-        setTimeout(() => setSaving(false), 500);
+        setTimeout(() => setSaving(false), SAVE_INDICATOR_DELAY);
       }
-    }, 1500);
+    }, AUTO_SAVE_DELAY);
     return () => clearTimeout(saveTimeoutRef.current);
   }, [content, isDirty, filePath]);
 

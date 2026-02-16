@@ -1,14 +1,15 @@
 import { useState, useEffect } from 'react';
-import { useSettings } from '../contexts/SettingsContext';
-import { useDataManagement } from '../hooks/useDataManagement';
+import { useSettings } from '../../contexts/SettingsContext';
+import { useDataManagement } from '../../hooks/useDataManagement';
 import FolderPicker from './FolderPicker';
-import PrimaryButton from './ui/PrimaryButton';
-import OutlineButton from './ui/OutlineButton';
-import ThemeToggle from './ui/ThemeToggle';
+import PrimaryButton from '../ui/PrimaryButton';
+import OutlineButton from '../ui/OutlineButton';
+import ThemeToggle from '../ui/ThemeToggle';
 import ConfirmationModal from './ConfirmationModal';
-import FileSystemSection from './settings/FileSystemSection';
-import DataManagementSection from './settings/DataManagementSection';
-import DangerZone from './settings/DangerZone';
+import FileSystemSection from '../settings/FileSystemSection';
+import DataManagementSection from '../settings/DataManagementSection';
+import DangerZone from '../settings/DangerZone';
+import { ADAPTER_TYPE } from '../../constants';
 
 interface Props {
     isOpen: boolean;
@@ -65,11 +66,11 @@ export default function SettingsModal({ isOpen, onClose }: Props) {
     const handleOpenFolder = async () => {
         if (!supportsFileSystem) return;
         try {
-            const { browserAdapter } = await import('../api/browserAdapter');
+            const { browserAdapter } = await import('../../api/browserAdapter');
             await browserAdapter.openDirectory();
-            const { setAdapter } = await import('../api/client');
+            const { setAdapter } = await import('../../api/client');
             setAdapter('browser');
-            setRootPath('BROWSER_NATIVE');
+            setRootPath(ADAPTER_TYPE.BROWSER);
             triggerRefresh();
             onClose();
         } catch (e) {
@@ -117,7 +118,7 @@ export default function SettingsModal({ isOpen, onClose }: Props) {
                             rootPath={rootPath}
                         />
 
-                        {rootPath === 'BROWSER_STORAGE' && (
+                        {rootPath === ADAPTER_TYPE.STORAGE && (
                             <>
                                 <hr className="border-slate-100 dark:border-slate-700" />
                                 <DangerZone onClearStorage={() => setConfirmClear(true)} />
@@ -165,7 +166,7 @@ export default function SettingsModal({ isOpen, onClose }: Props) {
                 }}
                 onConfirm={handleImportConfirm}
                 title="Import & Overwrite Data"
-                message={`This will overwrite all your existing in-browser data with the content from the selected JSON file.\n\nFound ${existingNoteCount} existing notes in In-Browser Storage.${rootPath !== 'BROWSER_STORAGE' ? '\n\nYou will be switched to In-Browser Storage mode.' : ''}\n\nThis action cannot be undone.`}
+                message={`This will overwrite all your existing in-browser data with the content from the selected JSON file.\n\nFound ${existingNoteCount} existing notes in In-Browser Storage.${rootPath !== ADAPTER_TYPE.STORAGE ? '\n\nYou will be switched to In-Browser Storage mode.' : ''}\n\nThis action cannot be undone.`}
                 confirmText={isImporting ? "Importing..." : "Import & Overwrite"}
                 variant="danger"
                 onAlternative={existingNoteCount > 0 ? handleSwitchToStorage : undefined}

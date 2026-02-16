@@ -1,6 +1,6 @@
 import CodeMirror from '@uiw/react-codemirror';
 import { markdown } from '@codemirror/lang-markdown';
-import { useSettings } from '../contexts/SettingsContext';
+import { useSettings } from '../../contexts/SettingsContext';
 import { githubDark, githubLight } from '@uiw/codemirror-theme-github';
 
 interface Props {

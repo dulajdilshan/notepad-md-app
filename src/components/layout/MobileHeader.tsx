@@ -1,4 +1,4 @@
-import appLogo from '../assets/notepad.md-logo.png';
+import appLogo from '../../assets/notepad.md-logo.png';
 
 interface Props {
     onToggleSidebar: () => void;
