@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react';
 import { useSettings } from '../contexts/SettingsContext';
 import { useDataManagement } from '../hooks/useDataManagement';
 import FolderPicker from './FolderPicker';
-import Button from './ui/Button';
+import PrimaryButton from './ui/PrimaryButton';
+import OutlineButton from './ui/OutlineButton';
 import ThemeToggle from './ui/ThemeToggle';
 import ConfirmationModal from './ConfirmationModal';
 import FileSystemSection from './settings/FileSystemSection';
@@ -125,18 +126,16 @@ export default function SettingsModal({ isOpen, onClose }: Props) {
                     </div>
 
                     <div className="px-6 py-4 bg-slate-50 dark:bg-slate-900/50 flex justify-end gap-2 border-t border-slate-100 dark:border-slate-700">
-                        <Button
-                            variant="outline"
+                        <OutlineButton
                             onClick={onClose}
                         >
                             Cancel
-                        </Button>
-                        <Button
-                            variant="primary"
+                        </OutlineButton>
+                        <PrimaryButton
                             onClick={handleSavePath}
                         >
                             Save Changes
-                        </Button>
+                        </PrimaryButton>
                     </div>
                 </div>
             </div>

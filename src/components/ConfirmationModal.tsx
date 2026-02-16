@@ -1,5 +1,7 @@
 import { useEffect } from 'react';
-import Button from './ui/Button';
+import OutlineButton from './ui/OutlineButton';
+import PrimaryButton from './ui/PrimaryButton';
+import DangerButton from './ui/DangerButton';
 
 interface Props {
     isOpen: boolean;
@@ -39,6 +41,8 @@ export default function ConfirmationModal({
         return () => window.removeEventListener('keydown', handleEsc);
     }, [isOpen, onClose]);
 
+    const ConfirmButtonComponent = variant === 'danger' ? DangerButton : PrimaryButton;
+
     return (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[60]" onClick={onClose}>
             <div
@@ -58,12 +62,11 @@ export default function ConfirmationModal({
                             </button>
                         )}
                         {showCancel && (
-                            <Button variant="outline" onClick={onClose} size="sm">
+                            <OutlineButton onClick={onClose} size="sm">
                                 {cancelText}
-                            </Button>
+                            </OutlineButton>
                         )}
-                        <Button
-                            variant={variant}
+                        <ConfirmButtonComponent
                             onClick={() => {
                                 onConfirm();
                                 onClose();
@@ -71,7 +74,7 @@ export default function ConfirmationModal({
                             size="sm"
                         >
                             {confirmText}
-                        </Button>
+                        </ConfirmButtonComponent>
                     </div>
                 </div>
             </div>

@@ -1,4 +1,4 @@
-import Button from '../ui/Button';
+import DangerButton from '../ui/DangerButton';
 
 interface Props {
     onClearStorage: () => void;
@@ -12,14 +12,13 @@ export default function DangerZone({ onClearStorage }: Props) {
                 <p className="text-xs text-red-600 dark:text-red-400 mb-3">
                     Clear all files and folders stored in the browser. This action cannot be undone.
                 </p>
-                <Button
-                    variant="danger"
+                <DangerButton
                     size="sm"
                     onClick={onClearStorage}
                     className="w-full"
                 >
                     Clear In-Browser Storage
-                </Button>
+                </DangerButton>
             </div>
         </div>
     );
