@@ -6,6 +6,7 @@ import CreateItemModal from './components/CreateItemModal';
 import SettingsModal from './components/SettingsModal';
 import WelcomeModal from './components/WelcomeModal';
 import RestoreSessionModal from './components/RestoreSessionModal';
+import ConfirmationModal from './components/ConfirmationModal';
 import { SettingsProvider, useSettings } from './contexts/SettingsContext'; // Need to import this
 import { useFileTree } from './hooks/useFileTree';
 import { useFileContent } from './hooks/useFileContent';
@@ -22,6 +23,17 @@ function AppContent() {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const [isMobileTodoOpen, setIsMobileTodoOpen] = useState(false);
+  const [confirmation, setConfirmation] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    onConfirm: () => void;
+  }>({
+    isOpen: false,
+    title: '',
+    message: '',
+    onConfirm: () => { },
+  });
 
   const { content, setContent, loading: fileLoading, isDirty, save, saving } = useFileContent(selectedPath);
   const { todos, toggleTodo } = useTodos(content, setContent);
@@ -83,9 +95,7 @@ function AppContent() {
     handleCloseFile,
   });
 
-  const handleDelete = async (path: string, type: 'file' | 'folder') => {
-    if (!confirm(`Are you sure you want to delete this ${type}?`)) return;
-
+  const performDelete = async (path: string, type: 'file' | 'folder') => {
     try {
       if (type === 'file') {
         await deleteFile(path);
@@ -99,6 +109,15 @@ function AppContent() {
     } catch (err) {
       console.error('Failed to delete:', err);
     }
+  };
+
+  const handleDelete = (path: string, type: 'file' | 'folder') => {
+    setConfirmation({
+      isOpen: true,
+      title: `Delete ${type === 'file' ? 'File' : 'Folder'}`,
+      message: `Are you sure you want to delete "${path.split('/').pop()}"? This action cannot be undone.`,
+      onConfirm: () => performDelete(path, type),
+    });
   };
 
   return (
@@ -184,6 +203,16 @@ function AppContent() {
           onCancel={() => setModal(null)}
         />
       )}
+
+      <ConfirmationModal
+        isOpen={confirmation.isOpen}
+        onClose={() => setConfirmation(prev => ({ ...prev, isOpen: false }))}
+        onConfirm={confirmation.onConfirm}
+        title={confirmation.title}
+        message={confirmation.message}
+        confirmText="Delete"
+        variant="danger"
+      />
     </div>
   );
 }

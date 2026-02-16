@@ -3,6 +3,7 @@ import { useSettings } from '../contexts/SettingsContext';
 import FolderPicker from './FolderPicker';
 import Button from './ui/Button';
 import ThemeToggle from './ui/ThemeToggle';
+import ConfirmationModal from './ConfirmationModal';
 
 interface Props {
     isOpen: boolean;
@@ -13,6 +14,7 @@ export default function SettingsModal({ isOpen, onClose }: Props) {
     const { rootPath, setRootPath, triggerRefresh } = useSettings();
     const [localPath, setLocalPath] = useState(rootPath);
     const [showPicker, setShowPicker] = useState(false);
+    const [confirmClear, setConfirmClear] = useState(false);
 
     // Feature detection
     const supportsFileSystem = 'showDirectoryPicker' in window;
@@ -36,6 +38,17 @@ export default function SettingsModal({ isOpen, onClose }: Props) {
             window.location.reload();
         }
         onClose();
+    };
+
+    const handleClearStorage = async () => {
+        try {
+            const { clearStorage } = await import('../api/localStorageAdapter');
+            await clearStorage();
+            window.location.reload();
+        } catch (e) {
+            console.error('Failed to clear storage:', e);
+            alert('Failed to clear storage.');
+        }
     };
 
     return (
@@ -131,18 +144,7 @@ export default function SettingsModal({ isOpen, onClose }: Props) {
                                         <Button
                                             variant="danger"
                                             size="sm"
-                                            onClick={async () => {
-                                                if (confirm('Are you sure you want to delete all files stored in this browser? This cannot be undone.')) {
-                                                    try {
-                                                        const { clearStorage } = await import('../api/localStorageAdapter');
-                                                        await clearStorage();
-                                                        window.location.reload();
-                                                    } catch (e) {
-                                                        console.error('Failed to clear storage:', e);
-                                                        alert('Failed to clear storage.');
-                                                    }
-                                                }
-                                            }}
+                                            onClick={() => setConfirmClear(true)}
                                             className="w-full"
                                         >
                                             Clear In-Browser Storage
@@ -179,6 +181,15 @@ export default function SettingsModal({ isOpen, onClose }: Props) {
                     onCancel={() => setShowPicker(false)}
                 />
             )}
+            <ConfirmationModal
+                isOpen={confirmClear}
+                onClose={() => setConfirmClear(false)}
+                onConfirm={handleClearStorage}
+                title="Clear Browser Storage"
+                message="Are you sure you want to delete all files stored in this browser? This action cannot be undone."
+                confirmText="Clear Storage"
+                variant="danger"
+            />
         </>
     );
 }

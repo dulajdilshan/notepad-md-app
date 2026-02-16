@@ -56,9 +56,7 @@ export default function TreeNode({ node, selectedPath, onSelectFile, onDelete, o
               role="button"
               onClick={(e) => {
                 e.stopPropagation();
-                if (confirm(`Delete folder "${node.name}" and all its contents?`)) {
-                  onDelete(node.path, 'folder');
-                }
+                onDelete(node.path, 'folder');
               }}
               className="p-1 text-slate-400 dark:text-slate-500 hover:text-red-500 rounded hover:bg-red-50 dark:hover:bg-red-900/20"
               title="Delete folder"
