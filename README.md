@@ -4,6 +4,8 @@
 
 # NotePad.md
 
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/dulajdilshan/notepad-md-app)
+
 A privacy-focused, client-side markdown note manager built with React. Edit and organize your local markdown files directly in the browser with a clean interface, or use it as a secure in-browser scratchpad.
 
 ## Key Features
